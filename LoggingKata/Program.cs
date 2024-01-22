@@ -19,8 +19,15 @@ namespace LoggingKata
 
             // Use File.ReadAllLines(path) to grab all the lines from your csv file. 
             // Optional: Log an error if you get 0 lines and a warning if you get 1 line
-            var lines = File.ReadAllLines(csvPath);
-
+            string[] lines = File.ReadAllLines(csvPath);
+            if(lines.Length == 0)
+            {
+                logger.LogError("file not found");
+            }
+            if(lines.Length == 1)
+            {
+                logger.LogWarning("file too short");
+            }
             // This will display the first item in your lines array
             logger.LogInfo($"Lines: {lines[0]}");
 
@@ -28,21 +35,45 @@ namespace LoggingKata
             var parser = new TacoParser();
 
             // Use the Select LINQ method to parse every line in lines collection
-            var locations = lines.Select(parser.Parse).ToArray();
+            var locations = lines.Select(x=>parser.Parse(x)).ToArray();
 
-  
+
             // Complete the Parse method in TacoParser class first and then START BELOW ----------
 
             // TODO: Create two `ITrackable` variables with initial values of `null`. 
             // These will be used to store your two Taco Bells that are the farthest from each other.
-            
+            ITrackable tacobell1 = null;
+            ITrackable tacobell2 = null;
             // TODO: Create a `double` variable to store the distance
-
+            double distance = 0;
             // TODO: Add the Geolocation library to enable location comparisons: using GeoCoordinatePortable;
             // Look up what methods you have access to within this library.
 
             // NESTED LOOPS SECTION----------------------------
-            
+            for (int i=0; i<locations.Length; i++)
+            {
+                var locA = locations[i];
+                var corA = new GeoCoordinate();
+                corA.Latitude=locA.Location.Latitude;
+                corA.Longitude=locA.Location.Longitude;
+
+                for (int j = 0; j < locations.Length; j++)
+                {
+                    var locB = locations[j];
+                    var corB = new GeoCoordinate();
+                    corB.Latitude = locB.Location.Latitude;
+                    corB.Longitude = locB.Location.Longitude;
+                    if (corA.GetDistanceTo(corB) > distance)
+                    {
+                        distance=corA.GetDistanceTo(corB);
+                        tacobell1 =locA;
+                        tacobell2 = locB;
+                    }
+                }
+                
+            }
+
+            logger.LogInfo($"{tacobell1.Name} and {tacobell2.Name} are the furthest apart");
             // FIRST FOR LOOP -
             // TODO: Create a loop to go through each item in your collection of locations.
             // This loop will let you select one location at a time to act as the "starting point" or "origin" location.
@@ -66,7 +97,7 @@ namespace LoggingKata
             // Display these two Taco Bell locations to the console.
 
 
-            
+
         }
     }
 }

@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace LoggingKata.Test
 {
     public class TacoParserTests
     {
+        private IEnumerable<object>     expected;
+
         [Fact]
         public void ShouldReturnNonNullObject()
         {
@@ -31,14 +34,22 @@ namespace LoggingKata.Test
             //       represents a TacoBell location
 
             //Arrange
-
+            var tacoparser=new TacoParser();
             //Act
-
+            var actual=tacoparser.Parse(line);
             //Assert
+            Assert.Equal(expected,actual.Location.Longitude);
         }
 
 
         //TODO: Create a test called ShouldParseLatitude
-
+        [Theory]
+        [InlineData("34.073638,-84.677017,Taco Bell Acwort...",34.073638)]
+        public void ShouldParseLatitude(string line, double expected)
+        {
+            var tacoparser=new TacoParser();
+            var actual=tacoparser.Parse(line);
+            Assert.Equal(expected, actual.Location.Latitude);
+        }
     }
 }
